@@ -10,6 +10,10 @@ type Builder struct {
 	parts []string
 }
 
+func (b *Builder) Reset() {
+	b.parts = []string{}
+}
+
 func (b *Builder) Add(part string) {
 	parts := strings.Split(part, " ")
 	for _, part := range parts {

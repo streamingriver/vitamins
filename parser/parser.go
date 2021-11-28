@@ -1,7 +1,10 @@
 package parser
 
 import (
+	"encoding/base64"
+	"log"
 	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -42,7 +45,14 @@ func (p *Parser) Call(s string) {
 		v[i] = reflect.ValueOf(pw(&s))
 	}
 	if funcArgs > 0 {
-		v[funcArgs-1] = reflect.ValueOf(s)
+		ds, err1 := base64.StdEncoding.DecodeString(strings.Trim(s, "\n\r\t "))
+
+		if err1 == nil {
+			v[funcArgs-1] = reflect.ValueOf(string(ds))
+		} else {
+			log.Printf("%v", err1)
+			v[funcArgs-1] = reflect.ValueOf(s)
+		}
 	}
 	funcValue.Call(v)
 }
@@ -63,8 +73,21 @@ func pw(s *string) string {
 	}
 	if len(*s) <= i {
 		*s = ""
+		ds, err := base64.StdEncoding.DecodeString(strings.Trim(rt, "\n\r\t "))
+
+		if err == nil {
+			return string(ds)
+		}
 		return rt
 	}
 	*s = (*s)[i+1:]
+
+	ds, err := base64.StdEncoding.DecodeString(strings.Trim(rt, "\n\r\t "))
+
+	if err == nil {
+		return string(ds)
+	}
+
+	log.Printf("DEFAULT %s", rt)
 	return rt
 }
