@@ -10,13 +10,18 @@ type Builder struct {
 	parts []string
 }
 
-func (b *Builder) Add(part string) {
+func (b *Builder) Reset() {
+	b.parts = []string{}
+}
+
+func (b *Builder) Add(part string) *Builder {
 	parts := strings.Split(part, " ")
 	for _, part := range parts {
 		if strings.Trim(part, " ") != "" {
 			b.parts = append(b.parts, part)
 		}
 	}
+	return b
 }
 
 func (b *Builder) Get() []string {
