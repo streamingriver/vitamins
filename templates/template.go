@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"bytes"
 	"os"
 	"path"
 	"path/filepath"
@@ -24,6 +25,12 @@ type Template struct {
 
 func (t *Template) Stdout() {
 	t.temp.Execute(os.Stdout, t.data)
+}
+
+func (t *Template) Out() string {
+	buff := bytes.NewBuffer(nil)
+	t.temp.Execute(buff, t.data)
+	return buff.String()
 }
 
 func (t *Template) Write(file string) error {
