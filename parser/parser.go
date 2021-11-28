@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/base64"
-	"log"
 	"reflect"
 	"strings"
 	"sync"
@@ -50,7 +49,6 @@ func (p *Parser) Call(s string) {
 		if err1 == nil {
 			v[funcArgs-1] = reflect.ValueOf(string(ds))
 		} else {
-			log.Printf("%v", err1)
 			v[funcArgs-1] = reflect.ValueOf(s)
 		}
 	}
@@ -87,7 +85,5 @@ func pw(s *string) string {
 	if err == nil {
 		return string(ds)
 	}
-
-	log.Printf("DEFAULT %s", rt)
 	return rt
 }
