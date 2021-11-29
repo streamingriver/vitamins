@@ -9,7 +9,7 @@ func New(listeners ...Listener) *ApiServer {
 	return as
 }
 
-func NewDefault(callback func([]byte)) *ApiServer {
+func NewDefault(callback Caller) *ApiServer {
 	as := &ApiServer{}
 	as.listeners = []Listener{
 		&NatsListener{
