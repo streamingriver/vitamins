@@ -31,7 +31,7 @@ func (nl *NatsListener) Listen() {
 		return
 	}
 	nc.Subscribe(nl.Topic, func(msg *nats.Msg) {
-		nl.OnMessage(msg.Data)
+		go nl.OnMessage(msg.Data)
 	})
 }
 
@@ -70,6 +70,6 @@ func (hl *HttpListener) Listen() {
 
 func (hl *HttpListener) OnMessage(b []byte) {
 	if hl.Callback != nil {
-		hl.Callback.Call(string(b))
+		go hl.Callback.Call(string(b))
 	}
 }
