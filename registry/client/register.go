@@ -2,7 +2,8 @@ package registry
 
 import (
 	"fmt"
-	"sync"
+	"log"
+	"sync/atomic"
 	"time"
 )
 
@@ -13,7 +14,7 @@ func New(target string, servicename, myhost, myport string) *Pinger {
 			myhost:      myhost,
 			myport:      myport,
 		},
-		mu:      new(sync.RWMutex),
+		delay:   1,
 		host:    target,
 		fetcher: &Fetch{},
 	}
@@ -30,35 +31,40 @@ type auth struct {
 	password string
 }
 
+// Pinger struct
 type Pinger struct {
 	fetcher Fetcher
 	config  *config
-	mu      *sync.RWMutex
 	host    string
-	running bool
+	running int32
 
 	auth *auth
+
+	delay uint32
 }
 
+// SetDelay between requests to registry
+func (p *Pinger) SetDelay(d uint32) {
+	atomic.StoreUint32(&p.delay, d)
+}
+
+// Start worker for periodic pings
 func (p *Pinger) Start() {
 	url := fmt.Sprintf("%s/%s/%s/%s", p.host, p.config.servicename, p.config.myhost, p.config.myport)
-	p.mu.Lock()
-	p.running = true
-	p.mu.Unlock()
+	atomic.StoreInt32(&p.running, 1)
 	for {
-		p.mu.RLock()
-		if p.running == false {
-			p.mu.RLock()
+		if atomic.LoadInt32(&p.running) == 0 {
 			return
 		}
-		p.mu.RUnlock()
-		p.fetcher.Fetch(url)
-		time.Sleep(1 * time.Second)
+		err := p.fetcher.Fetch(url)
+		if err != nil {
+			log.Printf("%v", err)
+		}
+		time.Sleep(time.Duration(atomic.LoadUint32(&p.delay)) * time.Second)
 	}
 }
 
+// Stop pinger worker
 func (p *Pinger) Stop() {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.running = false
+	atomic.StoreInt32(&p.running, 0)
 }

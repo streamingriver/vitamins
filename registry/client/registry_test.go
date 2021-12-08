@@ -29,9 +29,10 @@ func TestMain(t *testing.T) {
 	defer srv.Close()
 
 	r := New(srv.URL, "test", "host", "80")
+	r.SetDelay(1)
 
 	go r.Start()
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 200)
 	r.Stop()
 
 	server.mu.RLock()
