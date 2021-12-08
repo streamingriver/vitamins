@@ -24,6 +24,15 @@ func (b *Builder) Add(part string) *Builder {
 	return b
 }
 
+func (b *Builder) Replace(from, to string) *Builder {
+	r := New()
+	r.parts = b.parts
+	for idx, part := range r.parts {
+		r.parts[idx] = strings.ReplaceAll(part, from, to)
+	}
+	return r
+}
+
 func (b *Builder) Get() []string {
 	return b.parts
 }

@@ -3,6 +3,7 @@ package registry
 import (
 	"io"
 	"net/http"
+	"time"
 )
 
 type Fetcher interface {
@@ -19,7 +20,9 @@ func (f *Fetch) SetAuth(username, password string) {
 }
 
 func (f *Fetch) Fetch(url string) error {
-	HTTPClient := &http.Client{}
+	HTTPClient := &http.Client{
+		Timeout: 2 * time.Second,
+	}
 
 	request, _ := http.NewRequest("GET", url, nil)
 	if f.auth != nil {
@@ -31,7 +34,7 @@ func (f *Fetch) Fetch(url string) error {
 		return err
 	}
 	defer response.Body.Close()
-	io.Copy(io.Discard, response.Body)
+	_, err = io.Copy(io.Discard, response.Body)
 	if err != nil {
 		return err
 	}

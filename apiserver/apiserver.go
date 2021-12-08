@@ -9,20 +9,28 @@ func New(listeners ...Listener) *ApiServer {
 	return as
 }
 
-func NewDefault(callback func([]byte)) *ApiServer {
+func NewDefault(callback Caller) *ApiServer {
 	as := &ApiServer{}
 	as.listeners = []Listener{
-		&NatsListener{
-			getenvs.GetEnvString("SERVICE_NAME", "no-name"),
-			getenvs.GetEnvString("NATS_TOPIC", "configs"),
-			getenvs.GetEnvString("NATS_URL", "nats://localhost:4222"),
-			getenvs.GetEnvString("NATS_TOKEN", ""), callback,
-		},
-		&HttpListener{
-			getenvs.GetEnvString("API_PORT", ":3080"), callback,
-		},
+		NewDefaultNatsListener(callback),
+		NewDefaultHttpListener(callback),
 	}
 	return as
+}
+
+func NewDefaultNatsListener(callback Caller) *NatsListener {
+	return &NatsListener{
+		getenvs.GetEnvString("SERVICE_NAME", "no-name"),
+		getenvs.GetEnvString("NATS_TOPIC", "configs"),
+		getenvs.GetEnvString("NATS_URL", "nats://localhost:4222"),
+		getenvs.GetEnvString("NATS_TOKEN", ""), callback,
+	}
+}
+
+func NewDefaultHttpListener(callback Caller) *HttpListener {
+	return &HttpListener{
+		getenvs.GetEnvString("API_PORT", ":3080"), callback,
+	}
 }
 
 type ApiServer struct {

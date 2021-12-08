@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"log"
+	"bytes"
 	"os"
 	"path"
 	"path/filepath"
@@ -27,17 +27,23 @@ func (t *Template) Stdout() {
 	t.temp.Execute(os.Stdout, t.data)
 }
 
-func (t *Template) Write(file string) {
+func (t *Template) Out() string {
+	buff := bytes.NewBuffer(nil)
+	t.temp.Execute(buff, t.data)
+	return buff.String()
+}
+
+func (t *Template) Write(file string) error {
 
 	fh, err := renameio.TempFile(filepath.Dir(file), path.Base(file))
 
 	if err != nil {
-		log.Printf("%v", err)
+		return err
 	}
 
 	err = t.temp.Execute(fh, t.data)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
-	fh.CloseAtomicallyReplace()
+	return fh.CloseAtomicallyReplace()
 }

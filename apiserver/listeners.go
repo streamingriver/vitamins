@@ -20,7 +20,7 @@ type NatsListener struct {
 	Topic    string
 	URL      string
 	Token    string
-	Callback func([]byte)
+	Callback Caller
 }
 
 func (nl *NatsListener) Listen() {
@@ -31,7 +31,7 @@ func (nl *NatsListener) Listen() {
 		return
 	}
 	nc.Subscribe(nl.Topic, func(msg *nats.Msg) {
-		nl.OnMessage(msg.Data)
+		go nl.OnMessage(msg.Data)
 	})
 }
 
@@ -46,13 +46,13 @@ func (nl *NatsListener) OnMessage(b []byte) {
 		if natsMessage.Name != nl.Name {
 			return
 		}
-		nl.Callback([]byte(natsMessage.Data))
+		nl.Callback.Call(natsMessage.Data)
 	}
 }
 
 type HttpListener struct {
 	Addr     string
-	Callback func([]byte)
+	Callback Caller
 }
 
 func (hl *HttpListener) Listen() {
@@ -70,6 +70,6 @@ func (hl *HttpListener) Listen() {
 
 func (hl *HttpListener) OnMessage(b []byte) {
 	if hl.Callback != nil {
-		hl.Callback(b)
+		go hl.Callback.Call(string(b))
 	}
 }

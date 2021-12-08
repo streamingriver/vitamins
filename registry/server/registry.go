@@ -11,7 +11,7 @@ func New(schema string) *Registry {
 		schema,
 		make(map[string]*Item),
 		&sync.RWMutex{},
-		3,
+		5,
 	}
 }
 
