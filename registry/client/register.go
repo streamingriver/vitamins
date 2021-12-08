@@ -17,6 +17,7 @@ func New(target string, servicename, myhost, myport string) *Pinger {
 		delay:   1,
 		host:    target,
 		fetcher: &Fetch{},
+		cb:      nil,
 	}
 }
 
@@ -41,11 +42,17 @@ type Pinger struct {
 	auth *auth
 
 	delay uint32
+
+	cb func() string
 }
 
 // SetDelay between requests to registry
 func (p *Pinger) SetDelay(d uint32) {
 	atomic.StoreUint32(&p.delay, d)
+}
+
+func (p *Pinger) SetParamsFunc(f func() string) {
+	p.cb = f
 }
 
 // Start worker for periodic pings
@@ -56,7 +63,11 @@ func (p *Pinger) Start() {
 		if atomic.LoadInt32(&p.running) == 0 {
 			return
 		}
-		err := p.fetcher.Fetch(url)
+		params := ""
+		if p.cb != nil {
+			params = "?" + p.cb()
+		}
+		err := p.fetcher.Fetch(url + params)
 		if err != nil {
 			log.Printf("%v", err)
 		}
