@@ -67,5 +67,7 @@ func (r *Registry) Ping(ch, host, port string) {
 }
 
 func (r *Registry) Servers() map[string]*Item {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	return r.registry
 }
