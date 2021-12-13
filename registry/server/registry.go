@@ -65,3 +65,7 @@ func (r *Registry) Ping(ch, host, port string) {
 	r.registry[ch].Host = host
 	r.registry[ch].Seen = time.Now().Unix() + r.ttl
 }
+
+func (r *Registry) Servers() map[string]*Item {
+	return r.registry
+}
