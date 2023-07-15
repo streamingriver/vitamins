@@ -71,3 +71,13 @@ func (r *Registry) Servers() map[string]*Item {
 	defer r.mu.RUnlock()
 	return r.registry
 }
+
+func (r *Registry) Channels() []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	var channels []string
+	for k := range r.registry {
+		channels = append(channels, k)
+	}
+	return channels
+}
