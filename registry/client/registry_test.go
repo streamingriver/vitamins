@@ -28,7 +28,7 @@ func TestMain(t *testing.T) {
 	srv := httptest.NewServer(server)
 	defer srv.Close()
 
-	r := New(srv.URL, "test", "host", "80")
+	r := New(srv.URL, "test", "host", "80", "me")
 	r.SetDelay(1)
 
 	go r.Start()
